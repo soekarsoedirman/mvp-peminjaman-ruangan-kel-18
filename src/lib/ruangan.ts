@@ -14,3 +14,18 @@ export const getRoomsLimit15 = async (): Promise<Room[]> => {
   
   return data as Room[];
 };
+
+export const detailroom = async (roomId: string): Promise<Room> => {
+  const { data: room, error: roomError } = await supabase
+    .from('ruangan')
+    .select('*')
+    .eq('room_id', roomId)
+    .single();
+
+  if (roomError) {
+    console.error('Error fetching room:', roomError);
+    throw new Error(roomError.message);
+  }
+
+  return room as Room;
+};

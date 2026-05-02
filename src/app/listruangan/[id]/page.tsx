@@ -3,6 +3,8 @@ import Image from 'next/image';
 import Link from 'next/link'; 
 import { MapPin, ArrowRight, Users, CalendarDays } from 'lucide-react';
 import styles from './roomdetail.module.css';
+import { detailroom } from '@/lib/ruangan';
+import { getSceduleByRoomId } from '@/lib/schedule';
 
 export const revalidate = 0;
 
@@ -10,21 +12,9 @@ export default async function RoomDetailPage({ params }: { params: Promise<{ id:
   const resolvedParams = await params;
   const roomId = resolvedParams.id;
 
-  const { data: room, error: roomError } = await supabase
-    .from('ruangan')
-    .select('*')
-    .eq('room_id', roomId)
-    .single();
+  const room = await detailroom(roomId);
 
-  const { data: schedules, error: scheduleError } = await supabase
-    .from('schedule')
-    .select('*')
-    .eq('room_id', roomId)
-    .order('tanggal_dimulai', { ascending: true });
-
-  if (roomError || !room) {
-    return <div className={styles.container}>Ruangan tidak ditemukan.</div>;
-  }
+  const schedules = await getSceduleByRoomId(roomId);
 
   const getImageUrl = (fileName: string) => {
     if (!fileName) return '/placeholder.jpg';
@@ -100,7 +90,7 @@ export default async function RoomDetailPage({ params }: { params: Promise<{ id:
 
         {schedules && schedules.length > 0 ? (
           schedules.map((schedule, index) => (
-            <div key={schedule.scedule_id || index} className={styles.scheduleItem}>
+            <div key={schedule.schedule_id || index} className={styles.scheduleItem}>
               <h3 className={styles.scheduleTitle}>{schedule.schedule_name}</h3>
               <p className={styles.scheduleTime}>
                 {formatTime(schedule.tanggal_dimulai)} - {formatTime(schedule.tanggal_selesai)}

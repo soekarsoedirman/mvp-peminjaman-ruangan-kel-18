@@ -2,10 +2,12 @@ import { supabase } from './supabase';
 import { Schedule as Scedule } from '../types/schedule';
 
 export const getSceduleByRoomId = async (roomId: string): Promise<Scedule[]> => {
-  const { data, error } = await supabase
-    .from('scedule')
+  const { data: data, error: error } = await supabase
+    .from('schedule')
     .select('*')
-    .eq('room_id', roomId);
+    .eq('room_id', roomId)
+    .order('tanggal_dimulai', { ascending: true });
+
   
   if (error) {
     console.error(`Error fetching schedule for room ${roomId}:`, error);
